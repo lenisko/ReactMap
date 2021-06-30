@@ -3,6 +3,7 @@ const path = require('path')
 const logger = require('morgan')
 const compression = require('compression')
 const session = require('express-session')
+const { default: msgpack } = require("express-msgpack");
 const passport = require('passport')
 const rateLimit = require('express-rate-limit')
 const i18next = require('i18next')
@@ -43,7 +44,8 @@ const requestRateLimiter = rateLimit(rateLimitOptions)
 
 app.use(compression())
 
-app.use(express.json({ limit: '50mb' }))
+app.use(msgpack());
+// app.use(express.json({ limit: '50mb' }))
 
 app.use(express.static(path.join(__dirname, config.devOptions.clientPath)))
 
