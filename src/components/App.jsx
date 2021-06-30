@@ -17,6 +17,9 @@ import Login from './Login'
 const client = new ApolloClient({
   uri: '/graphql',
   link: new AbortableLink().concat(createHttpLink()),
+  headers: {
+    'Content-Type': 'application/msgpack'
+  },
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
