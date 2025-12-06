@@ -169,6 +169,30 @@ const resolvers = {
         req.session.save()
       }
 
+      const poracleFollowMe = config.getSafe('poracleFollowMe') || {}
+      const userWebhooks = perms?.webhooks || []
+      const hasPoracleFollowMe =
+        !!selectedWebhook &&
+        userWebhooks.some((webhook) =>
+          config.getSafe('webhooks').some((w) => {
+            if (w.name !== webhook || !w.enabled) return false
+            const discordMatch =
+              poracleFollowMe.discordRoles?.length > 0 &&
+              w.discordRoles?.some((role) =>
+                poracleFollowMe.discordRoles.includes(role),
+              )
+            const telegramMatch =
+              poracleFollowMe.telegramGroups?.length > 0 &&
+              w.telegramGroups?.some((group) =>
+                poracleFollowMe.telegramGroups.includes(group),
+              )
+            const localMatch =
+              poracleFollowMe.local?.length > 0 &&
+              w.local?.some((l) => poracleFollowMe.local.includes(l))
+            return discordMatch || telegramMatch || localMatch
+          }),
+        )
+
       return {
         custom: misc.customFloatingIcons,
         donationButton:
@@ -187,6 +211,13 @@ const resolvers = {
           ([k, v]) => v && perms[k],
         ),
         webhooks: !!selectedWebhook,
+        poracleFollowMe: hasPoracleFollowMe
+          ? {
+              enabled: true,
+              minimumAccuracy: poracleFollowMe.minimumAccuracy ?? 100,
+              sendEvery: poracleFollowMe.sendEvery ?? 30,
+            }
+          : null,
       }
     },
     geocoder: (_, { search }, { perms, Event, req }) => {

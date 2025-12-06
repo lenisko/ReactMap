@@ -699,6 +699,13 @@
     }
   },
   "webhooks": [],
+  "poracleFollowMe": {
+    "discordRoles": [],
+    "telegramGroups": [],
+    "local": [],
+    "minimumAccuracy": 120,
+    "sendEvery": 60
+  },
   "authentication": {
     "strategies": [
       {

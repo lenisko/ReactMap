@@ -26,6 +26,7 @@ import { styled } from '@mui/material/styles'
 
 import { FAB_BUTTONS } from '@services/queries/config'
 import { useLocation } from '@hooks/useLocation'
+import { usePoracleFollowMe } from '@hooks/usePoracleFollowMe'
 import { useMemory } from '@store/useMemory'
 import { useLayoutStore } from '@store/useLayoutStore'
 import { useStorage } from '@store/useStorage'
@@ -68,6 +69,7 @@ const DEFAULT = {
   scanZone: false,
   webhooks: false,
   search: false,
+  poracleFollowMe: null,
 }
 
 /** @param {Keys} name */
@@ -93,6 +95,7 @@ export function FloatingButtons() {
   const reactControls = useStorage(
     (s) => s.settings.navigationControls === 'react',
   )
+  const poracleFollowMeUserEnabled = useStorage((s) => s.poracleFollowMe)
   const { lc, requesting, color, locationError, hideLocationError } =
     useLocation(reactControls)
 
@@ -105,8 +108,12 @@ export function FloatingButtons() {
   const scanZoneMode = useScanStore((s) => s.scanZoneMode)
 
   const ref = React.useRef(null)
+  const [followMeHint, setFollowMeHint] = React.useState(false)
 
   const fabButtons = /** @type {typeof DEFAULT} */ (data?.fabButtons || DEFAULT)
+
+  // Hook to send location updates to Poracle when Follow Me is enabled
+  usePoracleFollowMe(fabButtons.poracleFollowMe)
 
   const DonorIcon = React.useMemo(
     () =>
@@ -128,13 +135,27 @@ export function FloatingButtons() {
         case 'zoomOut':
           return map.zoomOut()
         case 'locate':
+          if (
+            fabButtons.poracleFollowMe?.enabled &&
+            !poracleFollowMeUserEnabled
+          ) {
+            setFollowMeHint(true)
+          }
           return lc._onClick()
         default:
           break
       }
     },
-    [map, lc],
+    [map, lc, fabButtons.poracleFollowMe, poracleFollowMeUserEnabled],
   )
+
+  const hideFollowMeHint = React.useCallback(() => setFollowMeHint(false), [])
+
+  const openSettingsForFollowMe = React.useCallback(() => {
+    setFollowMeHint(false)
+    useLayoutStore.setState({ drawer: true })
+    useStorage.setState({ sidebar: 'settings' })
+  }, [])
 
   React.useEffect(() => {
     DomEvent.disableClickPropagation(ref.current)
@@ -295,6 +316,16 @@ export function FloatingButtons() {
           cb={hideLocationError}
         >
           {locationError.message}
+        </Notification>
+      )}
+      {followMeHint && (
+        <Notification
+          open={followMeHint}
+          severity="info"
+          cb={hideFollowMeHint}
+          onClick={openSettingsForFollowMe}
+        >
+          {t('poracle_follow_me_hint')}
         </Notification>
       )}
     </>

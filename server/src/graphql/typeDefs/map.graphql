@@ -185,6 +185,12 @@ type CustomButton {
   target: String
 }
 
+type PoracleFollowMeConfig {
+  enabled: Boolean
+  minimumAccuracy: Int
+  sendEvery: Int
+}
+
 type FabButtons {
   custom: [CustomButton]
   donationButton: String
@@ -193,6 +199,7 @@ type FabButtons {
   scanNext: Boolean
   webhooks: Boolean
   search: Boolean
+  poracleFollowMe: PoracleFollowMeConfig
 }
 
 type ScannerConfig {

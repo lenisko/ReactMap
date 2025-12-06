@@ -46,6 +46,7 @@ import { setDeep } from '@utils/setDeep'
  *   profiling: boolean
  *   stateTraceLog: boolean
  *   desktopNotifications: boolean
+ *   poracleFollowMe: boolean
  *   setAreas: (areas?: string | string[], validAreas?: string[], unselectAll?: boolean) => void,
  *   setPokemonFilterMode: (legacyFilter: boolean, easyMode: boolean) => void,
  *   getPokemonFilterMode: () => 'basic' | 'intermediate' | 'expert',
@@ -169,6 +170,7 @@ export const useStorage = create(
       profiling: false,
       stateTraceLog: false,
       desktopNotifications: false,
+      poracleFollowMe: false,
       selectedWebhook: '',
     }),
     {

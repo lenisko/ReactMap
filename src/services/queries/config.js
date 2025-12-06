@@ -29,6 +29,11 @@ export const FAB_BUTTONS = gql`
       scanZone
       webhooks
       search
+      poracleFollowMe {
+        enabled
+        minimumAccuracy
+        sendEvery
+      }
     }
   }
 `

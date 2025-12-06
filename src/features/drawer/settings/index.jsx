@@ -9,7 +9,9 @@ import InsightsIcon from '@mui/icons-material/Insights'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff'
 import LogoDevIcon from '@mui/icons-material/LogoDev'
+import MyLocationIcon from '@mui/icons-material/MyLocation'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@apollo/client'
 
 import { useMemory } from '@store/useMemory'
 import { toggleDialog } from '@store/useLayoutStore'
@@ -18,6 +20,7 @@ import {
   getPermission,
   requestPermission,
 } from '@services/desktopNotification'
+import { FAB_BUTTONS } from '@services/queries/config'
 import { LocaleSelection } from '@components/inputs/LocaleSelection'
 import { DividerWithMargin } from '@components/StyledDivider'
 import { BoolToggle } from '@components/inputs/BoolToggle'
@@ -30,11 +33,14 @@ import { HolidaySetting } from './Holiday'
 
 export function Settings() {
   const { t } = useTranslation()
+  const { data } = useQuery(FAB_BUTTONS, { fetchPolicy: 'cache-first' })
 
   const separateDrawerActions = useMemory(
     (s) => s.config.general.separateDrawerActions,
   )
   const staticSettings = useMemory((s) => s.settings)
+
+  const poracleFollowMeEnabled = data?.fabButtons?.poracleFollowMe?.enabled
 
   return (
     <>
@@ -53,6 +59,13 @@ export function Settings() {
           <Brightness7Icon />
         </ListItemIcon>
       </BoolToggle>
+      {poracleFollowMeEnabled && (
+        <BoolToggle field="poracleFollowMe">
+          <ListItemIcon>
+            <MyLocationIcon />
+          </ListItemIcon>
+        </BoolToggle>
+      )}
       {HAS_API && (
         <BasicListButton
           disabled={!HAS_API}

@@ -26,6 +26,7 @@ const alertStyle = { textAlign: 'center', color: 'white' }
  *  children?: T extends string ? never : React.ReactNode
  *  cb?: () => void
  *  title?: string
+ *  onClick?: () => void
  * }} props
  * @returns
  */
@@ -37,6 +38,7 @@ export function Notification({
   children,
   cb,
   title,
+  onClick,
 }) {
   const { t } = useTranslation()
   const [alert, setAlert] = React.useState(open || false)
@@ -68,6 +70,8 @@ export function Notification({
         severity={severity}
         variant="filled"
         style={alertStyle}
+        onClick={onClick}
+        sx={onClick ? { cursor: 'pointer' } : undefined}
       >
         {title && <AlertTitle>{t(title)}</AlertTitle>}
         {typeof i18nKey === 'string' && Array.isArray(messages)
