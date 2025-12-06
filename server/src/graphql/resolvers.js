@@ -170,28 +170,7 @@ const resolvers = {
       }
 
       const poracleFollowMe = config.getSafe('poracleFollowMe') || {}
-      const userWebhooks = perms?.webhooks || []
-      const hasPoracleFollowMe =
-        !!selectedWebhook &&
-        userWebhooks.some((webhook) =>
-          config.getSafe('webhooks').some((w) => {
-            if (w.name !== webhook || !w.enabled) return false
-            const discordMatch =
-              poracleFollowMe.discordRoles?.length > 0 &&
-              w.discordRoles?.some((role) =>
-                poracleFollowMe.discordRoles.includes(role),
-              )
-            const telegramMatch =
-              poracleFollowMe.telegramGroups?.length > 0 &&
-              w.telegramGroups?.some((group) =>
-                poracleFollowMe.telegramGroups.includes(group),
-              )
-            const localMatch =
-              poracleFollowMe.local?.length > 0 &&
-              w.local?.some((l) => poracleFollowMe.local.includes(l))
-            return discordMatch || telegramMatch || localMatch
-          }),
-        )
+      const hasPoracleFollowMe = !!selectedWebhook && !!perms.poracleFollowMe
 
       return {
         custom: misc.customFloatingIcons,

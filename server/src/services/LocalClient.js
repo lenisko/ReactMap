@@ -7,6 +7,7 @@ const config = require('@rm/config')
 
 const { areaPerms } = require('../utils/areaPerms')
 const { webhookPerms } = require('../utils/webhookPerms')
+const { poracleFollowMePerms } = require('../utils/poracleFollowMePerms')
 const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
 const { mergePerms } = require('../utils/mergePerms')
 const { AuthClient } = require('./AuthClient')
@@ -118,6 +119,9 @@ class LocalClient extends AuthClient {
               webhookPerms([user.status], 'local', trialActive).forEach((x) =>
                 user.perms.webhooks.push(x),
               )
+              if (poracleFollowMePerms([user.status], 'local')) {
+                user.perms.poracleFollowMe = true
+              }
               scannerPerms([user.status], 'local', trialActive).forEach((x) =>
                 user.perms.scanner.push(x),
               )

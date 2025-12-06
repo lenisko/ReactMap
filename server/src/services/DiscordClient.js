@@ -8,6 +8,7 @@ const config = require('@rm/config')
 const { logUserAuth } = require('./logUserAuth')
 const { areaPerms } = require('../utils/areaPerms')
 const { webhookPerms } = require('../utils/webhookPerms')
+const { poracleFollowMePerms } = require('../utils/poracleFollowMePerms')
 const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
 const { mergePerms } = require('../utils/mergePerms')
 const { AuthClient } = require('./AuthClient')
@@ -204,6 +205,9 @@ class DiscordClient extends AuthClient {
               scannerCooldownBypass(userRoles, 'discordRoles').forEach((x) =>
                 permSets.scannerCooldownBypass.add(x),
               )
+              if (poracleFollowMePerms(userRoles, 'discordRoles')) {
+                perms.poracleFollowMe = true
+              }
             }
           }),
         )
