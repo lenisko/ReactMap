@@ -3,6 +3,11 @@ import * as React from 'react'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListSubheader from '@mui/material/ListSubheader'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
 import TranslateIcon from '@mui/icons-material/Translate'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import InsightsIcon from '@mui/icons-material/Insights'
@@ -42,6 +47,19 @@ export function Settings() {
 
   const poracleFollowMeEnabled = data?.fabButtons?.poracleFollowMe?.enabled
 
+  const [showFollowMeWarning, setShowFollowMeWarning] = React.useState(false)
+
+  /** @type {import('@mui/material').SwitchProps['onChange']} */
+  const handleFollowMeChange = React.useCallback((_, checked) => {
+    if (checked) {
+      setShowFollowMeWarning(true)
+    }
+  }, [])
+
+  const closeFollowMeWarning = React.useCallback(() => {
+    setShowFollowMeWarning(false)
+  }, [])
+
   return (
     <>
       <ListSubheader>{t('general')}</ListSubheader>
@@ -60,12 +78,24 @@ export function Settings() {
         </ListItemIcon>
       </BoolToggle>
       {poracleFollowMeEnabled && (
-        <BoolToggle field="poracleFollowMe">
+        <BoolToggle field="poracleFollowMe" onChange={handleFollowMeChange}>
           <ListItemIcon>
             <MyLocationIcon />
           </ListItemIcon>
         </BoolToggle>
       )}
+      <Dialog open={showFollowMeWarning} onClose={closeFollowMeWarning}>
+        <DialogContent>
+          <DialogContentText>
+            {t('poracle_follow_me_warning')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeFollowMeWarning} autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
       {HAS_API && (
         <BasicListButton
           disabled={!HAS_API}

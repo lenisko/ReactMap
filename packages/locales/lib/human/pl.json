@@ -737,6 +737,7 @@
   "use_my_location": "Użyj bieżącej lokalizacji",
   "poracle_follow_me": "Poracle Śledź mnie",
   "poracle_follow_me_hint": "Aby automatycznie aktualizować swoją lokalizację w bocie Poracle, włącz tę funkcję w Ustawieniach > Poracle Follow Me.",
+  "poracle_follow_me_warning": "Aktualizacje lokalizacji działają tylko wtedy, gdy strona z mapą jest aktywna. Po jej zminimalizowaniu, przełączeniu na inny ekran lub wygaszeniu przeglądarki, przesyłanie lokalizacji zostanie wstrzymane.",
   "use_the_link_below": "Możesz użyć poniższego linka aby przesłać opinię lub zgłosić napotkane błędy.",
   "user_profile": "Profil użytkownika",
   "user_username": "Nazwa użytkownika",

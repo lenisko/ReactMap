@@ -124,6 +124,7 @@
   "use_my_location": "Use My Location",
   "poracle_follow_me": "Poracle Follow Me",
   "poracle_follow_me_hint": "To automatically update your location in Poracle Bot, enable it in Settings > Poracle Follow Me",
+  "poracle_follow_me_warning": "Location updates work only while the map page is active. If the page is minimized, switched to another screen, or the browser is put to sleep, location sharing will stop.",
   "submit_feedback_title": "Submit Feedback/Bug Report",
   "use_the_link_below": "You can use the link below to submit feedback or any bugs that you have come across.",
   "feedback_to_devs": "This feedback is sent directly to the developers.",
