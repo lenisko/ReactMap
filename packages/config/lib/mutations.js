@@ -356,6 +356,10 @@ const applyMutations = (config) => {
     config.scanner[key] = replaceBothAliases(config.scanner[key] || {})
   })
 
+  if (config.poracleFollowMe) {
+    config.poracleFollowMe = replaceBothAliases(config.poracleFollowMe)
+  }
+
   if (
     !config.authentication.alwaysEnabledPerms.length &&
     (!config.authentication.strategies.length ||
