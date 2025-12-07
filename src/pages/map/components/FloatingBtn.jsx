@@ -12,6 +12,11 @@ import CheckIcon from '@mui/icons-material/Check'
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin'
 import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound'
 import Stack from '@mui/material/Stack'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
 import EuroSymbol from '@mui/icons-material/EuroSymbol'
 import Person from '@mui/icons-material/Person'
 import TrackChanges from '@mui/icons-material/TrackChanges'
@@ -109,6 +114,8 @@ export function FloatingButtons() {
 
   const ref = React.useRef(null)
   const [followMeHint, setFollowMeHint] = React.useState(false)
+  const [showFollowMeWarning, setShowFollowMeWarning] = React.useState(false)
+  const warningCount = useStorage((s) => s.poracleFollowMeWarningCount)
 
   const fabButtons = /** @type {typeof DEFAULT} */ (data?.fabButtons || DEFAULT)
 
@@ -137,22 +144,39 @@ export function FloatingButtons() {
         case 'locate':
           if (
             fabButtons.poracleFollowMe?.enabled &&
-            !poracleFollowMeUserEnabled
+            !poracleFollowMeUserEnabled &&
+            warningCount < 3
           ) {
             setFollowMeHint(true)
+            setShowFollowMeWarning(true)
+            useStorage.setState({
+              poracleFollowMeWarningCount: warningCount + 1,
+            })
           }
           return lc._onClick()
         default:
           break
       }
     },
-    [map, lc, fabButtons.poracleFollowMe, poracleFollowMeUserEnabled],
+    [
+      map,
+      lc,
+      fabButtons.poracleFollowMe,
+      poracleFollowMeUserEnabled,
+      warningCount,
+    ],
   )
 
   const hideFollowMeHint = React.useCallback(() => setFollowMeHint(false), [])
 
+  const closeFollowMeWarning = React.useCallback(
+    () => setShowFollowMeWarning(false),
+    [],
+  )
+
   const openSettingsForFollowMe = React.useCallback(() => {
     setFollowMeHint(false)
+    setShowFollowMeWarning(false)
     useLayoutStore.setState({ drawer: true })
     useStorage.setState({ sidebar: 'settings' })
   }, [])
@@ -328,6 +352,18 @@ export function FloatingButtons() {
           {t('poracle_follow_me_hint')}
         </Notification>
       )}
+      <Dialog open={showFollowMeWarning} onClose={closeFollowMeWarning}>
+        <DialogContent>
+          <DialogContentText>
+            {t('poracle_follow_me_warning')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeFollowMeWarning} autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
