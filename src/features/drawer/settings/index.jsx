@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery } from '@apollo/client'
 
 import { useMemory } from '@store/useMemory'
+import { useStorage } from '@store/useStorage'
 import { toggleDialog } from '@store/useLayoutStore'
 import {
   HAS_API,
@@ -48,13 +49,18 @@ export function Settings() {
   const poracleFollowMeEnabled = data?.fabButtons?.poracleFollowMe?.enabled
 
   const [showFollowMeWarning, setShowFollowMeWarning] = React.useState(false)
+  const warningCount = useStorage((s) => s.poracleFollowMeWarningCount)
 
   /** @type {import('@mui/material').SwitchProps['onChange']} */
-  const handleFollowMeChange = React.useCallback((_, checked) => {
-    if (checked) {
-      setShowFollowMeWarning(true)
-    }
-  }, [])
+  const handleFollowMeChange = React.useCallback(
+    (_, checked) => {
+      if (checked && warningCount < 3) {
+        setShowFollowMeWarning(true)
+        useStorage.setState({ poracleFollowMeWarningCount: warningCount + 1 })
+      }
+    },
+    [warningCount],
+  )
 
   const closeFollowMeWarning = React.useCallback(() => {
     setShowFollowMeWarning(false)
