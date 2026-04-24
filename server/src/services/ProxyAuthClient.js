@@ -145,6 +145,16 @@ class ProxyAuthClient extends AuthClient {
     const trialActive = this.trialManager.active()
     const perms = this.getPerms(allRoles)
 
+    this.log.info(
+      'Proxy perms check:',
+      'roles=',
+      allRoles,
+      'configMapRoles=',
+      this.perms.map?.roles,
+      'mapResult=',
+      perms.map,
+    )
+
     const user = {
       id: undefined,
       proxyId: userId,
