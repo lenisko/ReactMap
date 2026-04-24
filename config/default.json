@@ -774,6 +774,19 @@
         "name": "local",
         "type": "local",
         "enabled": false
+      },
+      {
+        "name": "proxy",
+        "type": "proxy",
+        "enabled": false,
+        "provider": "proxyRoles",
+        "roleSeparator": ",",
+        "headers": {
+          "id": "X-User-ID",
+          "username": "X-User-Username",
+          "roles": "X-User-Roles",
+          "roleIds": "X-User-Role-IDs"
+        }
       }
     ],
     "strictAreaRestrictions": false,

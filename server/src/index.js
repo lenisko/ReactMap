@@ -82,6 +82,15 @@ const startServer = async () => {
 
   initPassport(app)
 
+  if (
+    config
+      .getSafe('authentication.strategies')
+      .some((s) => s.type === 'proxy' && s.enabled)
+  ) {
+    const { proxyAuth } = require('./middleware/proxyAuth')
+    app.use(proxyAuth)
+  }
+
   const sentryErrorMiddleware = initSentry(app)
 
   app.use(rootRouter)
