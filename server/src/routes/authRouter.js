@@ -12,6 +12,7 @@ const { state } = require('../services/state')
 const loadAuthStrategies = () => {
   authRouter.stack = []
   config.getSafe('authentication.strategies').forEach((strategy, i) => {
+    if (strategy.type === 'proxy') return // handled by proxyAuth middleware
     const method =
       strategy.type === 'discord' || strategy.type === 'telegram'
         ? 'get'

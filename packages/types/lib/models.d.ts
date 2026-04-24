@@ -22,6 +22,7 @@ export interface User {
   discordId?: string
   username?: string
   telegramId?: string
+  proxyId?: string
   password?: string
   discordPerms?: Permissions
   telegramPerms?: Permissions

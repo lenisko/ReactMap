@@ -29,7 +29,7 @@ export type RMGeoJSON = {
   features: RMFeature[]
 }
 
-export type Strategy = 'discord' | 'telegram' | 'local'
+export type Strategy = 'discord' | 'telegram' | 'local' | 'proxy'
 
 export type S2Polygon = [number, number][]
 

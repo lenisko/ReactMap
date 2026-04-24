@@ -30,6 +30,7 @@ server/src/strategies/*
 !server/src/strategies/discord.js
 !server/src/strategies/telegram.js
 !server/src/strategies/local.js
+!server/src/strategies/proxy.js
 
 # API Endpoints
 server/src/routes/api/v1/*
