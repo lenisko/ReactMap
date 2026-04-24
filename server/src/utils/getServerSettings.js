@@ -51,7 +51,7 @@ function getServerSettings(req) {
     authentication: {
       loggedIn: !!req.user,
       excludeList: authentication.excludeFromTutorial,
-      methods: authentication.methods,
+      methods: authentication.methods.filter((m) => m !== 'proxy'),
     },
     database: {
       settings: {
