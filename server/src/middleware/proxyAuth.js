@@ -41,13 +41,13 @@ function proxyAuth(req, res, next) {
 
   const strategyName = strategy.name || 'proxy'
 
-  // eslint-disable-next-line no-unused-vars
-  passport.authenticate(strategyName, (err, user, _info) => {
+  passport.authenticate(strategyName, (err, user, info) => {
     if (err) {
       log.error(TAGS.auth, 'Proxy auth error:', err)
       return next()
     }
     if (!user) {
+      log.warn(TAGS.auth, 'Proxy auth denied for', userId, info)
       // Auth failed (e.g. lost map perm) — logout existing session
       if (req.user) {
         return req.logout((logoutErr) => {
