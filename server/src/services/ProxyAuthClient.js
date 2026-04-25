@@ -94,7 +94,7 @@ class ProxyAuthClient extends AuthClient {
 
     Object.entries(this.perms).forEach(([perm, info]) => {
       if (!info.enabled) return
-      if (this.alwaysEnabledPerms.includes(perm)) {
+      if (this.alwaysEnabledPerms.includes(perm) || !info.roles.length) {
         perms[perm] = true
         return
       }
