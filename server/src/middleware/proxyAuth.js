@@ -3,6 +3,9 @@ const passport = require('passport')
 const config = require('@rm/config')
 const { log, TAGS } = require('@rm/logger')
 const { state } = require('../services/state')
+const { areaPerms } = require('../utils/areaPerms')
+const { webhookPerms } = require('../utils/webhookPerms')
+const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
 
 /**
  * Resolve role names to IDs via aliases and combine with raw role IDs.
@@ -73,7 +76,13 @@ function proxyAuth(req, res, next) {
         client.aliasMap,
         client.roleSeparator,
       )
-      Object.assign(req.user.perms, client.getPerms(allRoles))
+      const trialActive = client.trialManager.active()
+      Object.assign(req.user.perms, client.getPerms(allRoles), {
+        areaRestrictions: areaPerms(allRoles),
+        webhooks: webhookPerms(allRoles, client.provider, trialActive),
+        scanner: scannerPerms(allRoles, client.provider, trialActive),
+        scannerCooldownBypass: scannerCooldownBypass(allRoles, client.provider),
+      })
     }
     return next()
   }
