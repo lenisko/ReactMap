@@ -98,6 +98,15 @@ class ProxyAuthClient extends AuthClient {
         perms[perm] = true
         return
       }
+      if (
+        trialActive &&
+        info.trialPeriodEligible &&
+        !this.strategy.trialPeriod?.roles?.length
+      ) {
+        perms[perm] = true
+        perms.trial = true
+        return
+      }
       roles.some((role) => {
         if (info.roles.includes(role)) {
           perms[perm] = true
