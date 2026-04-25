@@ -5,6 +5,31 @@ const { log, TAGS } = require('@rm/logger')
 const { state } = require('../services/state')
 
 /**
+ * Resolve role names to IDs via aliases and combine with raw role IDs.
+ *
+ * @param {string} rolesRaw
+ * @param {string} roleIdsRaw
+ * @param {Record<string, string | string[]>} aliasMap
+ * @param {string} sep
+ * @returns {string[]}
+ */
+function resolveRoles(rolesRaw, roleIdsRaw, aliasMap, sep) {
+  const roleNames = rolesRaw
+    .split(sep)
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const roleIds = roleIdsRaw
+    .split(sep)
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const resolved = roleNames.flatMap((name) => {
+    const id = aliasMap[name]
+    return id ? [name, ...(Array.isArray(id) ? id : [id])] : [name]
+  })
+  return [...resolved, ...roleIds]
+}
+
+/**
  * Auto-login middleware for proxy-based auth (e.g. nginx auth_request).
  *
  * Reads user identity headers set by a reverse proxy and creates a
@@ -24,18 +49,32 @@ function proxyAuth(req, res, next) {
 
   const idHeader = (strategy.headers?.id || 'x-user-id').toLowerCase()
   const rolesHeader = (strategy.headers?.roles || 'x-user-roles').toLowerCase()
+  const roleIdsHeader = (
+    strategy.headers?.roleIds || 'x-user-role-ids'
+  ).toLowerCase()
 
   const userId = req.headers[idHeader]
   if (!userId || typeof userId !== 'string') return next()
 
   const headerRoles = /** @type {string} */ (req.headers[rolesHeader] || '')
+  const headerRoleIds = /** @type {string} */ (req.headers[roleIdsHeader] || '')
 
-  // Same user, same roles — use existing session
+  // Same user, same roles — refresh perms from config without full re-auth
   if (
     req.user &&
     req.user.proxyId === userId &&
     req.session.proxyRoles === headerRoles
   ) {
+    const client = state.event.authClients[strategy.name || 'proxy']
+    if (client && client.getPerms) {
+      const allRoles = resolveRoles(
+        headerRoles,
+        headerRoleIds,
+        client.aliasMap,
+        client.roleSeparator,
+      )
+      Object.assign(req.user.perms, client.getPerms(allRoles))
+    }
     return next()
   }
 
