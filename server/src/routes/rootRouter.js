@@ -14,6 +14,7 @@ const { apiRouter } = require('./api')
 const { areaPerms } = require('../utils/areaPerms')
 const { getServerSettings } = require('../utils/getServerSettings')
 const { secretMiddleware } = require('../middleware/secret')
+const { permsHash } = require('../utils/permsHash')
 const { version } = require('../../../package.json')
 const { state } = require('../services/state')
 
@@ -262,6 +263,12 @@ rootRouter.get('/api/settings', async (req, res, next) => {
       if (settings.user.perms.tappables && api.queryOnSessionInit.tappables) {
         state.event.setAvailable('tappables', 'Tappable', state.db)
       }
+    }
+
+    const perms = req.user ? req.user.perms : req.session.perms
+    if (perms) {
+      req.session.permsHash = permsHash(perms)
+      req.session.save()
     }
 
     res.status(200).json(settings)
