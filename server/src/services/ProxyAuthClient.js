@@ -56,6 +56,10 @@ class ProxyAuthClient extends AuthClient {
         ([k, v]) => [k, v.toLowerCase()],
       ),
     )
+    /** @type {Record<string, string | string[]>} Alias name → role ID mapping */
+    this.aliasMap = Object.fromEntries(
+      config.getSafe('authentication.aliases').map((a) => [a.name, a.role]),
+    )
   }
 
   /**
@@ -141,7 +145,11 @@ class ProxyAuthClient extends AuthClient {
       .map((s) => s.trim())
       .filter(Boolean)
 
-    const allRoles = [...roleNames, ...roleIds]
+    const resolvedNames = roleNames.flatMap((name) => {
+      const id = this.aliasMap[name]
+      return id ? [name, ...(Array.isArray(id) ? id : [id])] : [name]
+    })
+    const allRoles = [...resolvedNames, ...roleIds]
     const trialActive = this.trialManager.active()
     const perms = this.getPerms(allRoles)
 
