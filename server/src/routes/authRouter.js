@@ -93,18 +93,16 @@ const loadAuthStrategies = () => {
                   }
                   const { id } = user
                   if (!(await state.db.models.Session.isValidSession(id))) {
-                    if (config.getSafe('api.manualSessionControl')) {
-                      req.session.save()
-                      return res.redirect('/sessions')
+                    if (!config.getSafe('api.manualSessionControl')) {
+                      log.info(
+                        TAGS.auth,
+                        'Detected multiple sessions, clearing old ones...',
+                      )
+                      await state.db.models.Session.clearOtherSessions(
+                        id,
+                        req.sessionID,
+                      )
                     }
-                    log.info(
-                      TAGS.auth,
-                      'Detected multiple sessions, clearing old ones...',
-                    )
-                    await state.db.models.Session.clearOtherSessions(
-                      id,
-                      req.sessionID,
-                    )
                   }
                   return res.redirect('/')
                 })
