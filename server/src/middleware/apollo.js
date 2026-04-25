@@ -113,18 +113,31 @@ function apolloMiddleware(server) {
         }
       }
 
-      if (
-        id &&
-        config.getSafe('api.manualSessionControl') &&
-        !(await state.db.models.Session.isValidSession(id))
-      ) {
-        throw new GraphQLError('too_many_sessions', {
-          extensions: {
-            ...errorCtx,
-            http: { status: 466 },
-            code: 'TOO_MANY_SESSIONS',
-          },
-        })
+      if (id && config.getSafe('api.manualSessionControl')) {
+        const now = Date.now()
+        const cached = req.session.sessionValid
+        if (!cached || now > cached.until) {
+          const valid = await state.db.models.Session.isValidSession(id)
+          req.session.sessionValid = { valid, until: now + 60000 }
+          if (!valid) {
+            req.session.save()
+            throw new GraphQLError('too_many_sessions', {
+              extensions: {
+                ...errorCtx,
+                http: { status: 466 },
+                code: 'TOO_MANY_SESSIONS',
+              },
+            })
+          }
+        } else if (!cached.valid) {
+          throw new GraphQLError('too_many_sessions', {
+            extensions: {
+              ...errorCtx,
+              http: { status: 466 },
+              code: 'TOO_MANY_SESSIONS',
+            },
+          })
+        }
       }
 
       return {
