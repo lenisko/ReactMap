@@ -10,10 +10,15 @@ import { useTranslation } from 'react-i18next'
 import { useMemory } from '@store/useMemory'
 
 import { Header } from './Header'
+import { TooManySessions } from './TooManySessions'
 
 export function ClientError() {
   const { t } = useTranslation()
   const error = useMemory((s) => s.clientError)
+
+  if (error === 'too_many_sessions') {
+    return <TooManySessions />
+  }
 
   return (
     <Dialog open={!!error}>
