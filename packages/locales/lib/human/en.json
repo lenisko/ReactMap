@@ -577,6 +577,8 @@
   "refresh_to_continue": "Please refresh before continuing",
   "session_expired_title": "Session Expired",
   "session_expired_body": "Your session has expired",
+  "perms_changed_title": "Permissions Changed",
+  "perms_changed_body": "Your permissions have been updated",
   "old_client_title": "Outdated",
   "old_client_body": "A new version of this map is available",
   "early_old_client_title": "Outdated",

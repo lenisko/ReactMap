@@ -17,6 +17,7 @@ const {
   hasAnyPokestopPermission,
 } = require('../utils/hasAnyPokestopPermission')
 const { secretMiddleware } = require('../middleware/secret')
+const { permsHash } = require('../utils/permsHash')
 const { version } = require('../../../package.json')
 const { state } = require('../services/state')
 
@@ -290,6 +291,11 @@ rootRouter.get('/api/settings', async (req, res, next) => {
         )
       }
     })
+
+    if (perms) {
+      req.session.permsHash = permsHash(perms)
+      req.session.save()
+    }
 
     const settings = getServerSettings(req)
     res.status(200).json(settings)

@@ -22,6 +22,10 @@ export const useProcessError = (error) => {
         useMemory.setState({ clientError: 'old_client' })
         setErrorState(true)
       }
+      if (error.networkError?.statusCode === 465) {
+        useMemory.setState({ clientError: 'perms_changed' })
+        setErrorState(true)
+      }
       if (error.networkError?.statusCode === 511) {
         useMemory.setState({ clientError: 'session_expired' })
         setErrorState(true)

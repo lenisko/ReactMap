@@ -7,6 +7,7 @@ const { parse } = require('graphql')
 const { state } = require('../services/state')
 const { version } = require('../../../package.json')
 const { DataLimitCheck } = require('../services/DataLimitCheck')
+const { permsHash } = require('../utils/permsHash')
 
 /**
  *
@@ -90,6 +91,22 @@ function apolloMiddleware(server) {
             code: ApolloServerErrorCode.BAD_REQUEST,
           },
         })
+      }
+
+      if (perms) {
+        const currentHash = permsHash(perms)
+        if (req.session.permsHash && req.session.permsHash !== currentHash) {
+          req.session.permsHash = currentHash
+          req.session.save()
+          throw new GraphQLError('perms_changed', {
+            extensions: {
+              ...errorCtx,
+              http: { status: 465 },
+              code: 'PERMS_CHANGED',
+            },
+          })
+        }
+        req.session.permsHash = currentHash
       }
 
       return {
