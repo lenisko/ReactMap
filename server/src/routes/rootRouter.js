@@ -293,8 +293,10 @@ rootRouter.get('/api/settings', async (req, res, next) => {
     })
 
     if (perms) {
-      req.session.permsHash = permsHash(perms)
+      const hash = permsHash(perms)
+      req.session.permsHash = hash
       req.session.save()
+      settings.user.permsHash = hash
     }
 
     const settings = getServerSettings(req)
