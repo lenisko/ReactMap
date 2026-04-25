@@ -97,8 +97,11 @@ function apolloMiddleware(server) {
 
       if (perms) {
         const currentHash = permsHash(perms)
-        if (req.session.permsHash && req.session.permsHash !== currentHash) {
-          req.session.permsHash = currentHash
+        const hashChanged =
+          req.session.permsHash && req.session.permsHash !== currentHash
+        req.session.permsHash = currentHash
+        if (hashChanged || req.session.permsChanged) {
+          delete req.session.permsChanged
           req.session.save()
           throw new GraphQLError('perms_changed', {
             extensions: {
@@ -108,7 +111,6 @@ function apolloMiddleware(server) {
             },
           })
         }
-        req.session.permsHash = currentHash
       }
 
       if (

@@ -6,6 +6,7 @@ const { state } = require('../services/state')
 const { areaPerms } = require('../utils/areaPerms')
 const { webhookPerms } = require('../utils/webhookPerms')
 const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
+const { permsHash } = require('../utils/permsHash')
 
 /**
  * Resolve role names to IDs via aliases and combine with raw role IDs.
@@ -70,6 +71,7 @@ function proxyAuth(req, res, next) {
   ) {
     const client = state.event.authClients[strategy.name || 'proxy']
     if (client && client.getPerms) {
+      const oldHash = permsHash(req.user.perms)
       const allRoles = resolveRoles(
         headerRoles,
         headerRoleIds,
@@ -83,6 +85,10 @@ function proxyAuth(req, res, next) {
         scanner: scannerPerms(allRoles, client.provider, trialActive),
         scannerCooldownBypass: scannerCooldownBypass(allRoles, client.provider),
       })
+      const newHash = permsHash(req.user.perms)
+      if (oldHash !== newHash) {
+        req.session.permsChanged = true
+      }
     }
     return next()
   }
@@ -111,10 +117,14 @@ function proxyAuth(req, res, next) {
     }
 
     const doLogin = () => {
+      const oldPermsHash = req.session.permsHash
       req.login(user, async (loginErr) => {
         if (loginErr) {
           log.error(TAGS.auth, 'Proxy auth login error:', loginErr)
           return next()
+        }
+        if (oldPermsHash) {
+          req.session.permsHash = oldPermsHash
         }
         req.session.proxyRoles = headerRoles
         req.session.meta = {
