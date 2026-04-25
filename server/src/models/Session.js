@@ -82,6 +82,39 @@ class Session extends Model {
   }
 
   /**
+   * @param {number} userId
+   * @returns {Promise<Array<{ session_id: string, expires: number, data: string }>>}
+   */
+  static async getUserSessions(userId) {
+    try {
+      const ts = Math.floor(Date.now() / 1000)
+      return await this.query()
+        .whereRaw(`json_extract(data, '$.passport.user.id') = ${userId}`)
+        .andWhere('expires', '>=', ts)
+    } catch (e) {
+      log.error(TAGS.session, 'Unable to get user sessions', e)
+      return []
+    }
+  }
+
+  /**
+   * @param {string} sessionId
+   * @param {number} userId
+   * @returns {Promise<number>}
+   */
+  static async deleteSessionById(sessionId, userId) {
+    try {
+      return await this.query()
+        .where('session_id', sessionId)
+        .andWhereRaw(`json_extract(data, '$.passport.user.id') = ${userId}`)
+        .delete()
+    } catch (e) {
+      log.error(TAGS.session, 'Unable to delete session', e)
+      return 0
+    }
+  }
+
+  /**
    *
    * @param {string} discordId
    * @param {string} botName
