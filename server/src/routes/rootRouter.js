@@ -66,6 +66,8 @@ rootRouter.delete('/api/sessions/:sessionId', async (req, res) => {
       req.params.sessionId,
       req.user.id,
     )
+    delete req.session.sessionValid
+    req.session.save()
     return res.status(200).json({ deleted: result })
   } catch (e) {
     log.error(TAGS.api, req.originalUrl, e)
