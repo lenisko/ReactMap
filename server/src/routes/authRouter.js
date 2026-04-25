@@ -86,7 +86,7 @@ const loadAuthStrategies = () => {
               )
             } else {
               try {
-                return req.login(user, { keepSessionInfo: true }, async () => {
+                return req.login(user, async () => {
                   req.session.meta = {
                     userAgent: req.get('user-agent') || '',
                     createdAt: Date.now(),

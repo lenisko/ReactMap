@@ -7,6 +7,7 @@ const config = require('@rm/config')
 const { areaPerms } = require('../utils/areaPerms')
 const { webhookPerms } = require('../utils/webhookPerms')
 const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
+const { resolveRoles } = require('../utils/resolveRoles')
 const { AuthClient } = require('./AuthClient')
 const { state } = require('./state')
 
@@ -144,25 +145,16 @@ class ProxyAuthClient extends AuthClient {
       return done(null, false, { message: 'no_proxy_headers' })
     }
 
-    const sep = this.roleSeparator
-    const roleNames = rolesRaw
-      .split(sep)
-      .map((s) => s.trim())
-      .filter(Boolean)
-    const roleIds = roleIdsRaw
-      .split(sep)
-      .map((s) => s.trim())
-      .filter(Boolean)
-
-    const resolvedNames = roleNames.flatMap((name) => {
-      const id = this.aliasMap[name]
-      return id ? [name, ...(Array.isArray(id) ? id : [id])] : [name]
-    })
-    const allRoles = [...resolvedNames, ...roleIds]
+    const allRoles = resolveRoles(
+      rolesRaw,
+      roleIdsRaw,
+      this.aliasMap,
+      this.roleSeparator,
+    )
     const trialActive = this.trialManager.active()
     const perms = this.getPerms(allRoles)
 
-    this.log.info(
+    this.log.debug(
       'Proxy perms check:',
       'roles=',
       allRoles,
