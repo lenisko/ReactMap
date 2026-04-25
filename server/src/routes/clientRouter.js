@@ -15,6 +15,7 @@ const CLIENT_ROUTES = [
   '/304',
   '/404',
   '/500',
+  '/sessions',
   '/reset',
   '/playground',
   '/locales',

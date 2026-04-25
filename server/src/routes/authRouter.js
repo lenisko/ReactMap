@@ -87,8 +87,16 @@ const loadAuthStrategies = () => {
             } else {
               try {
                 return req.login(user, async () => {
+                  req.session.meta = {
+                    userAgent: req.get('user-agent') || '',
+                    createdAt: Date.now(),
+                  }
                   const { id } = user
                   if (!(await state.db.models.Session.isValidSession(id))) {
+                    if (config.getSafe('api.manualSessionControl')) {
+                      req.session.save()
+                      return res.redirect('/sessions')
+                    }
                     log.info(
                       TAGS.auth,
                       'Detected multiple sessions, clearing old ones...',

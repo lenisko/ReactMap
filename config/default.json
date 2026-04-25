@@ -19,6 +19,7 @@
     "showSchemasInConfigApi": false,
     "showStrategiesInConfigApi": false,
     "maxSessions": 5,
+    "manualSessionControl": false,
     "sessionCheckIntervalMs": 900000,
     "cookieAgeDays": 7,
     "rateLimit": {
