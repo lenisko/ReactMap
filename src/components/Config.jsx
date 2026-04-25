@@ -168,7 +168,6 @@ export function Config({ children }) {
         },
         zoom: safeZoom,
         location,
-        ...(permsChanged ? { filters: {} } : {}),
       }))
       setServerSettings({ ...serverSettings, fetched: true })
     } else {
