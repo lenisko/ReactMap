@@ -116,15 +116,23 @@ function proxyAuth(req, res, next) {
           log.error(TAGS.auth, 'Proxy auth login error:', loginErr)
           return next()
         }
+        req.session.proxyRoles = headerRoles
+        req.session.meta = {
+          userAgent: req.get('user-agent') || '',
+          createdAt: Date.now(),
+        }
         const { id } = user
         if (!(await state.db.models.Session.isValidSession(id))) {
+          if (config.getSafe('api.manualSessionControl')) {
+            req.session.save()
+            return res.redirect('/sessions')
+          }
           log.info(
             TAGS.auth,
             'Detected multiple sessions, clearing old ones...',
           )
           await state.db.models.Session.clearOtherSessions(id, req.sessionID)
         }
-        req.session.proxyRoles = headerRoles
         req.session.save()
         next()
       })

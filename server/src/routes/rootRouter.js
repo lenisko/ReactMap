@@ -29,6 +29,49 @@ rootRouter.get('/api/health', async (req, res) =>
   res.status(200).json({ status: 'ok' }),
 )
 
+rootRouter.get('/api/sessions/my', async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ status: 'Unauthorized' })
+    }
+    const maxSessions = config.getSafe('api.maxSessions')
+    const sessions = await state.db.models.Session.getUserSessions(req.user.id)
+    const mapped = sessions.map((s) => {
+      const parsed = typeof s.data === 'string' ? JSON.parse(s.data) : s.data
+      return {
+        session_id: s.session_id,
+        current: s.session_id === req.sessionID,
+        userAgent: parsed.meta?.userAgent || '',
+        createdAt: parsed.meta?.createdAt || null,
+        expires: s.expires,
+      }
+    })
+    return res.status(200).json({ sessions: mapped, maxSessions })
+  } catch (e) {
+    log.error(TAGS.api, req.originalUrl, e)
+    res.status(500).json({ status: 'ServerError', reason: e.message })
+  }
+})
+
+rootRouter.delete('/api/sessions/:sessionId', async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ status: 'Unauthorized' })
+    }
+    if (req.params.sessionId === req.sessionID) {
+      return res.status(400).json({ status: 'CannotDeleteCurrentSession' })
+    }
+    const result = await state.db.models.Session.deleteSessionById(
+      req.params.sessionId,
+      req.user.id,
+    )
+    return res.status(200).json({ deleted: result })
+  } catch (e) {
+    log.error(TAGS.api, req.originalUrl, e)
+    res.status(500).json({ status: 'ServerError', reason: e.message })
+  }
+})
+
 rootRouter.post('/api/error/client', async (req, res) => {
   try {
     const { stack, cause, message, uuid } = req.body
