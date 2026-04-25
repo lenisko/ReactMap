@@ -10,6 +10,7 @@ import { BlockedPage } from './Blocked'
 import { ErrorPage } from './Error'
 import { DataManagerPage } from './data'
 import { ResetPage } from './Reset'
+import { SessionsPage } from './Sessions'
 import { LocalesPage } from './locales'
 
 const Playground = React.lazy(() =>
@@ -38,6 +39,11 @@ const blockedRoute = (
     <BlockedPage />
   </Config>
 )
+const sessionsRoute = (
+  <Config>
+    <SessionsPage />
+  </Config>
+)
 const playgroundRoute = (
   <Config>
     <Playground />
@@ -56,6 +62,7 @@ export function Pages() {
       <Route path="data-management" element={dataRoute} />
       <Route path="locales" element={localesPage} />
       <Route path="playground" element={playgroundRoute} />
+      <Route path="sessions" element={sessionsRoute} />
       <Route path="blocked/:info" element={blockedRoute} />
       <Route path="@/:lat/:lon" element={mapRoute} />
       <Route path="@/:lat/:lon/:zoom" element={mapRoute} />

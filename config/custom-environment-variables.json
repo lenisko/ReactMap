@@ -52,6 +52,10 @@
       "__name": "API_MAX_SESSIONS",
       "__format": "number"
     },
+    "manualSessionControl": {
+      "__name": "API_MANUAL_SESSION_CONTROL",
+      "__format": "boolean"
+    },
     "sessionCheckIntervalMs": {
       "__name": "API_SESSION_CHECK_INTERVAL_MS",
       "__format": "number"
