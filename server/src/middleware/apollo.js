@@ -4,6 +4,8 @@ const { ApolloServerErrorCode } = require('@apollo/server/errors')
 const { GraphQLError } = require('graphql')
 const { parse } = require('graphql')
 
+const config = require('@rm/config')
+
 const { state } = require('../services/state')
 const { version } = require('../../../package.json')
 const { DataLimitCheck } = require('../services/DataLimitCheck')
@@ -107,6 +109,20 @@ function apolloMiddleware(server) {
           })
         }
         req.session.permsHash = currentHash
+      }
+
+      if (
+        id &&
+        config.getSafe('api.manualSessionControl') &&
+        !(await state.db.models.Session.isValidSession(id))
+      ) {
+        throw new GraphQLError('too_many_sessions', {
+          extensions: {
+            ...errorCtx,
+            http: { status: 466 },
+            code: 'TOO_MANY_SESSIONS',
+          },
+        })
       }
 
       return {
