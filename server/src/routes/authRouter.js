@@ -86,11 +86,7 @@ const loadAuthStrategies = () => {
               )
             } else {
               try {
-                const oldPermsHash = req.session.permsHash
-                return req.login(user, async () => {
-                  if (oldPermsHash) {
-                    req.session.permsHash = oldPermsHash
-                  }
+                return req.login(user, { keepSessionInfo: true }, async () => {
                   req.session.meta = {
                     userAgent: req.get('user-agent') || '',
                     createdAt: Date.now(),

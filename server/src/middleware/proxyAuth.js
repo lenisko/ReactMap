@@ -117,14 +117,10 @@ function proxyAuth(req, res, next) {
     }
 
     const doLogin = () => {
-      const oldPermsHash = req.session.permsHash
-      req.login(user, async (loginErr) => {
+      req.login(user, { keepSessionInfo: true }, async (loginErr) => {
         if (loginErr) {
           log.error(TAGS.auth, 'Proxy auth login error:', loginErr)
           return next()
-        }
-        if (oldPermsHash) {
-          req.session.permsHash = oldPermsHash
         }
         req.session.proxyRoles = headerRoles
         req.session.meta = {
