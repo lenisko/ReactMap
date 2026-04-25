@@ -137,13 +137,24 @@ export function Config({ children }) {
         gymValidDataLimit: data.api.gymValidDataLimit,
       })
 
+      const prevPermsHash = localState?.state?.permsHash
+      const permsChanged =
+        data.user.permsHash &&
+        prevPermsHash &&
+        prevPermsHash !== data.user.permsHash
+
       useStorage.setState((prev) => ({
+        permsHash: data.user.permsHash || prev.permsHash,
         tutorial:
           !localState?.state?.tutorial || data.user.tutorial === undefined
             ? !!localState?.state?.tutorial
             : !data.user.tutorial,
-        menus: deepMerge({}, data.menus, prev.menus),
-        userSettings: deepMerge({}, data.userSettings, prev.userSettings),
+        menus: permsChanged
+          ? data.menus
+          : deepMerge({}, data.menus, prev.menus),
+        userSettings: permsChanged
+          ? data.userSettings
+          : deepMerge({}, data.userSettings, prev.userSettings),
         settings: {
           ...prev.settings,
           ...Object.fromEntries(
@@ -157,6 +168,7 @@ export function Config({ children }) {
         },
         zoom: safeZoom,
         location,
+        ...(permsChanged ? { filters: {} } : {}),
       }))
       setServerSettings({ ...serverSettings, fetched: true })
     } else {
