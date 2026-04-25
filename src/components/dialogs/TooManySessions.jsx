@@ -27,7 +27,7 @@ function parseUserAgent(ua) {
   if (!ua) return 'Unknown'
   const browser =
     ua.match(
-      /(Chrome|Firefox|Safari|Edge|Opera|MSIE|Trident)[/\s]([\d.]+)/,
+      /(Edg|Chrome|Firefox|Safari|Opera|MSIE|Trident)[/\s]([\d.]+)/,
     )?.[0] || ''
   const os =
     ua.match(/(Windows|Mac OS X|Linux|Android|iOS|iPhone)[\s/]?[\d._]*/)?.[0] ||
@@ -64,8 +64,9 @@ export function TooManySessions() {
         setSessions(data.sessions)
         setMaxSessions(data.maxSessions)
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to fetch sessions', e)
     } finally {
       setLoading(false)
     }
@@ -83,8 +84,9 @@ export function TooManySessions() {
       if (res.ok) {
         fetchSessions()
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to delete session', e)
     }
   }
 
