@@ -193,7 +193,7 @@ const resolvers = {
         search: Object.entries(config.getSafe('api.searchable')).some(
           ([k, v]) => v && perms[k],
         ),
-        webhooks: !!selectedWebhook,
+        webhooks: !!selectedWebhook && misc.enableFloatingWebhookButton,
       }
     },
     geocoder: (_, { search }, { perms, Event, req }) => {
