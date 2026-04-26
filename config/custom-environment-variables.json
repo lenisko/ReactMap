@@ -502,6 +502,10 @@
         "__name": "MAP_MISC_ENABLE_FLOATING_PROFILE_BUTTON",
         "__format": "boolean"
       },
+      "enableFloatingWebhookButton": {
+        "__name": "MAP_MISC_ENABLE_FLOATING_WEBHOOK_BUTTON",
+        "__format": "boolean"
+      },
       "forceTutorial": {
         "__name": "MAP_MISC_FORCE_TUTORIAL",
         "__format": "boolean"
