@@ -253,6 +253,7 @@
       "questMessage": "",
       "navigationControls": "react",
       "enableFloatingProfileButton": false,
+      "enableFloatingWebhookButton": true,
       "forceTutorial": true,
       "enableTutorial": true,
       "enableUserProfile": true,
