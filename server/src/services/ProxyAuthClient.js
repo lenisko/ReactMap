@@ -168,6 +168,7 @@ class ProxyAuthClient extends AuthClient {
       id: undefined,
       proxyId: userId,
       username,
+      strategy: 'proxy',
       perms: /** @type {import('@rm/types').Permissions} */ ({
         ...perms,
         areaRestrictions: areaPerms(allRoles),
