@@ -12,6 +12,9 @@
     "skipMinified": false,
     "skipUpdateCheck": false
   },
+  "logging": {
+    "directory": "logs"
+  },
   "api": {
     "sessionSecret": "98ki^e72~!@#(85o3kXLI*#c9wu5l!Z",
     "reactMapSecret": "",
