@@ -161,12 +161,14 @@ class PoracleAPI {
     if (!user) {
       return ''
     }
-    const { strategy, webhookStrategy, discordId, telegramId } = user
+    const { strategy, webhookStrategy, discordId, telegramId, proxyId } = user
     switch (strategy) {
       case 'discord':
         return discordId
       case 'telegram':
         return telegramId
+      case 'proxy':
+        return proxyId
       default:
         return webhookStrategy === 'discord' ? discordId : telegramId
     }
@@ -351,7 +353,17 @@ class PoracleAPI {
    * @returns
    */
   async #oneHuman(userId) {
-    const { human } = await this.#sendRequest(APIS.oneHuman(userId))
+    const response = await this.#sendRequest(APIS.oneHuman(userId))
+    const human =
+      response && typeof response === 'object' ? response.human : null
+    if (!human) {
+      log.warn(
+        TAGS.webhooks,
+        `oneHuman(${userId}) returned no human, response:`,
+        response,
+      )
+      return { human: null }
+    }
     return {
       human: {
         ...human,
