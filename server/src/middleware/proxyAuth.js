@@ -45,6 +45,7 @@ function proxyAuth(req, res, next) {
     req.user.proxyId === userId &&
     req.session.proxyRoles === headerRoles
   ) {
+    if (!req.user.strategy) req.user.strategy = 'proxy'
     const client = state.event.authClients[strategy.name || 'proxy']
     if (client && client.getPerms) {
       const oldHash = permsHash(req.user.perms)
