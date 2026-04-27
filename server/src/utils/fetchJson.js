@@ -39,14 +39,19 @@ async function fetchJson(url, options = undefined) {
         return e.cause
       log.error(TAGS.fetch, `Unable to fetch ${url}`, '\n', e)
       if (options) {
-        fs.writeFileSync(
-          resolve(
-            __dirname,
-            '../../../../logs',
-            `${url.replaceAll('/', '_')}${Math.floor(Date.now() / 1000)}.json`,
-          ),
-          JSON.stringify(options, null, 2),
-        )
+        try {
+          const logDir = config.resolveLogDir()
+          fs.mkdirSync(logDir, { recursive: true })
+          fs.writeFileSync(
+            resolve(
+              logDir,
+              `${url.replaceAll(/[/:]/g, '_')}${Math.floor(Date.now() / 1000)}.json`,
+            ),
+            JSON.stringify(options, null, 2),
+          )
+        } catch (logErr) {
+          log.warn(TAGS.fetch, 'Failed to write fetch debug log', logErr)
+        }
       }
       return e.cause
     }
