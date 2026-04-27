@@ -2,11 +2,13 @@
 // @ts-check
 const path = require('path')
 
+const ROOT_DIR = path.join(__dirname, '..', '..', '..')
+
 if (!process.env.NODE_CONFIG_DIR) {
   process.env.NODE_CONFIG_DIR =
-    path.join(__dirname, '..', '..', '..', 'config') +
+    path.join(ROOT_DIR, 'config') +
     path.delimiter +
-    path.join(__dirname, '..', '..', '..', 'server', 'src', 'configs')
+    path.join(ROOT_DIR, 'server', 'src', 'configs')
   process.env.ALLOW_CONFIG_MUTATIONS = 'true'
   process.env.SUPPRESS_NO_CONFIG_WARNING = 'true'
 }
@@ -38,6 +40,13 @@ const config = require('config')
 
 config.getSafe = function getSafe(key) {
   return require('config').get(key)
+}
+
+config.ROOT_DIR = ROOT_DIR
+
+config.resolveLogDir = function resolveLogDir() {
+  const dir = this.getSafe('logging.directory')
+  return path.isAbsolute(dir) ? dir : path.join(ROOT_DIR, dir)
 }
 
 setGlobalLogLevel(config.getSafe('devOptions.logLevel'))
