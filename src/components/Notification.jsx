@@ -80,6 +80,7 @@ export function Notification({
       open={alert}
       onClose={handleSnackbarClose}
       TransitionComponent={SlideTransition}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >
       <Alert
         onClose={closable ? handleClose : undefined}
