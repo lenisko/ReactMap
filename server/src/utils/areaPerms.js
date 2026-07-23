@@ -27,7 +27,9 @@ function areaPerms(roles) {
       }
     }
   }
-  return [...new Set(perms)]
+  // Sort for a deterministic result: the perms object is hashed to detect
+  // permission changes, so order must not depend on incoming role order.
+  return [...new Set(perms)].sort()
 }
 
 module.exports = { areaPerms }
