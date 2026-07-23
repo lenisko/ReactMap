@@ -297,6 +297,7 @@ rootRouter.get('/api/settings', async (req, res, next) => {
     if (perms) {
       const hash = permsHash(perms)
       req.session.permsHash = hash
+      req.session.permsRoles = req.session.proxyRoles || ''
       req.session.save()
       settings.user.permsHash = hash
     }
