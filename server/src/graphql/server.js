@@ -48,7 +48,9 @@ async function startApollo(httpServer) {
         customMessage =
           'user is not authenticated, forcing logout, no need to report this error unless it continues to happen'
       } else if (e.message === 'perms_changed') {
-        customMessage = 'user permissions changed, prompting reload'
+        customMessage = `user permissions changed (roles: '${
+          e.extensions.rolesFrom ?? ''
+        }' -> '${e.extensions.rolesTo ?? ''}'), prompting reload`
       } else if (e.message === 'too_many_sessions') {
         customMessage =
           'user has too many active sessions, prompting session cleanup'

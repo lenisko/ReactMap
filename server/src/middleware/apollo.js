@@ -97,15 +97,20 @@ function apolloMiddleware(server) {
 
       if (perms) {
         const currentHash = permsHash(perms)
+        const currentRoles = req.session.proxyRoles || ''
+        const previousRoles = req.session.permsRoles || ''
         const hashChanged =
           req.session.permsHash && req.session.permsHash !== currentHash
         req.session.permsHash = currentHash
+        req.session.permsRoles = currentRoles
         if (hashChanged || req.session.permsChanged) {
           delete req.session.permsChanged
           req.session.save()
           throw new GraphQLError('perms_changed', {
             extensions: {
               ...errorCtx,
+              rolesFrom: previousRoles,
+              rolesTo: currentRoles,
               http: { status: 465 },
               code: 'PERMS_CHANGED',
             },
