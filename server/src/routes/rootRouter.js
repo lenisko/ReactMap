@@ -171,7 +171,7 @@ rootRouter.get(['/area/:area', '/area/:area/:zoom'], (req, res) => {
   }
 })
 
-rootRouter.get('/api/settings', async (req, res, next) => {
+rootRouter.get('/api/settings', async (req, res) => {
   const authentication = config.getSafe('authentication')
   const scanner = config.getSafe('scanner')
   const api = config.getSafe('api')
@@ -294,6 +294,8 @@ rootRouter.get('/api/settings', async (req, res, next) => {
       }
     })
 
+    const settings = getServerSettings(req)
+
     if (perms) {
       const hash = permsHash(perms)
       req.session.permsHash = hash
@@ -302,11 +304,10 @@ rootRouter.get('/api/settings', async (req, res, next) => {
       settings.user.permsHash = hash
     }
 
-    const settings = getServerSettings(req)
     res.status(200).json(settings)
   } catch (error) {
+    log.error(TAGS.express, TAGS.url(req.originalUrl), error)
     res.status(500).json({ error: error.message, status: 500 })
-    next(error)
   }
 })
 
