@@ -68,6 +68,16 @@ declare module 'express-session' {
   interface SessionData {
     cooldown?: number
     perms?: Permissions
+    /** Raw roles header value the session was authenticated with */
+    proxyRoles?: string
+    /** Baseline hash of the perms the client was last served */
+    permsHash?: string
+    /** Roles that produced `permsHash` */
+    permsRoles?: string
+    /** Set when perms were recomputed and actually differed */
+    permsChanged?: boolean
+    /** Perm keys that differed, for logging */
+    permsChangedKeys?: string[]
   }
 }
 

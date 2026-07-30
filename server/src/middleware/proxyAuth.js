@@ -6,7 +6,7 @@ const { state } = require('../services/state')
 const { areaPerms } = require('../utils/areaPerms')
 const { webhookPerms } = require('../utils/webhookPerms')
 const { scannerPerms, scannerCooldownBypass } = require('../utils/scannerPerms')
-const { permsHash } = require('../utils/permsHash')
+const { permsHash, permsDiff } = require('../utils/permsHash')
 const { resolveRoles } = require('../utils/resolveRoles')
 
 /**
@@ -48,7 +48,7 @@ function proxyAuth(req, res, next) {
     if (!req.user.strategy) req.user.strategy = 'proxy'
     const client = state.event.authClients[strategy.name || 'proxy']
     if (client && client.getPerms) {
-      const oldHash = permsHash(req.user.perms)
+      const before = { ...req.user.perms }
       const allRoles = resolveRoles(
         headerRoles,
         headerRoleIds,
@@ -62,15 +62,23 @@ function proxyAuth(req, res, next) {
         scanner: scannerPerms(allRoles, client.provider, trialActive),
         scannerCooldownBypass: scannerCooldownBypass(allRoles, client.provider),
       })
-      const newHash = permsHash(req.user.perms)
-      if (oldHash !== newHash) {
+      const changed = permsDiff(before, req.user.perms)
+      if (changed.length) {
         req.session.permsChanged = true
+        req.session.permsChangedKeys = changed
       }
     }
     return next()
   }
 
   const strategyName = strategy.name || 'proxy'
+
+  // Captured before `req.login` regenerates the session. `keepSessionInfo`
+  // copies the old session onto the new one, so any `permsHash` left there
+  // describes perms that are about to be replaced - comparing against it is
+  // what produced spurious `perms_changed` prompts. The only meaningful
+  // baseline is the perms of the user that was actually logged in.
+  const prevPerms = req.user ? req.user.perms : null
 
   passport.authenticate(strategyName, (err, user, info) => {
     if (err) {
@@ -103,6 +111,17 @@ function proxyAuth(req, res, next) {
         req.session.meta = {
           userAgent: req.get('user-agent') || '',
           createdAt: Date.now(),
+        }
+        // Rebase the change detector onto the perms we just logged in with.
+        const changed = prevPerms ? permsDiff(prevPerms, user.perms) : []
+        req.session.permsHash = permsHash(user.perms)
+        req.session.permsRoles = headerRoles
+        if (changed.length) {
+          req.session.permsChanged = true
+          req.session.permsChangedKeys = changed
+        } else {
+          delete req.session.permsChanged
+          delete req.session.permsChangedKeys
         }
         const { id } = user
         if (!(await state.db.models.Session.isValidSession(id))) {

@@ -296,7 +296,10 @@ rootRouter.get('/api/settings', async (req, res) => {
 
     const settings = getServerSettings(req)
 
-    if (perms) {
+    // An empty perms object means "not resolved yet" (anonymous / auth denied).
+    // Storing its hash as the baseline makes the next authenticated request
+    // look like a permission change, so skip it.
+    if (perms && Object.keys(perms).length) {
       const hash = permsHash(perms)
       req.session.permsHash = hash
       req.session.permsRoles = req.session.proxyRoles || ''
