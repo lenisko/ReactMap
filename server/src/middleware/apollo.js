@@ -9,7 +9,7 @@ const config = require('@rm/config')
 const { state } = require('../services/state')
 const { version } = require('../../../package.json')
 const { DataLimitCheck } = require('../services/DataLimitCheck')
-const { permsHash } = require('../utils/permsHash')
+const { permsHash, isComparableHash } = require('../utils/permsHash')
 
 /**
  *
@@ -95,22 +95,28 @@ function apolloMiddleware(server) {
         })
       }
 
-      if (perms) {
+      if (perms && Object.keys(perms).length) {
         const currentHash = permsHash(perms)
         const currentRoles = req.session.proxyRoles || ''
         const previousRoles = req.session.permsRoles || ''
+        // A baseline from an older hash version is not comparable - adopt it
+        // silently rather than reporting a change that never happened.
         const hashChanged =
-          req.session.permsHash && req.session.permsHash !== currentHash
+          isComparableHash(req.session.permsHash) &&
+          req.session.permsHash !== currentHash
+        const changedKeys = req.session.permsChangedKeys || []
         req.session.permsHash = currentHash
         req.session.permsRoles = currentRoles
         if (hashChanged || req.session.permsChanged) {
           delete req.session.permsChanged
+          delete req.session.permsChangedKeys
           req.session.save()
           throw new GraphQLError('perms_changed', {
             extensions: {
               ...errorCtx,
               rolesFrom: previousRoles,
               rolesTo: currentRoles,
+              changedPerms: changedKeys,
               http: { status: 465 },
               code: 'PERMS_CHANGED',
             },
