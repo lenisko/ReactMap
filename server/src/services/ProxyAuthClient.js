@@ -85,7 +85,29 @@ class ProxyAuthClient extends AuthClient {
    * @returns {Record<string, boolean>}
    */
   getPerms(roles) {
-    const trialActive = this.trialManager.active()
+    return this.computePerms(roles, this.trialApplies(roles))
+  }
+
+  /**
+   * A trial only exists to let users without access try the map out. Anyone
+   * who already has access through their roles is left untouched by it -
+   * otherwise their perms would flip every time a trial window opens or
+   * closes, forcing a pointless reload.
+   *
+   * @param {string[]} roles Combined role names + role IDs
+   * @returns {boolean}
+   */
+  trialApplies(roles) {
+    if (!this.trialManager.active()) return false
+    return !this.computePerms(roles, false).map
+  }
+
+  /**
+   * @param {string[]} roles Combined role names + role IDs
+   * @param {boolean} trialActive Whether trial grants apply to this user
+   * @returns {Record<string, boolean>}
+   */
+  computePerms(roles, trialActive) {
     /** @type {Record<string, boolean>} */
     const perms = Object.fromEntries(
       Object.keys(this.perms).map((key) => [key, false]),
@@ -151,8 +173,8 @@ class ProxyAuthClient extends AuthClient {
       this.aliasMap,
       this.roleSeparator,
     )
-    const trialActive = this.trialManager.active()
-    const perms = this.getPerms(allRoles)
+    const trialActive = this.trialApplies(allRoles)
+    const perms = this.computePerms(allRoles, trialActive)
 
     this.log.debug(
       'Proxy perms check:',
