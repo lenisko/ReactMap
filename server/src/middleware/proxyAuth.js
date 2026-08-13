@@ -81,6 +81,10 @@ function proxyAuth(req, res, next) {
   // what produced spurious `perms_changed` prompts. The only meaningful
   // baseline is the perms of the user that was actually logged in.
   const prevPerms = req.user ? req.user.perms : null
+  // `req.session.permsRoles` is about to be rewritten with the incoming roles,
+  // so the roles the session actually ran on are only readable here. Without
+  // it every perms_changed log printed the new roles on both sides.
+  const prevRoles = req.session.permsRoles ?? req.session.proxyRoles ?? ''
 
   passport.authenticate(strategyName, (err, user, info) => {
     if (err) {
@@ -121,9 +125,11 @@ function proxyAuth(req, res, next) {
         if (changed.length) {
           req.session.permsChanged = true
           req.session.permsChangedKeys = changed
+          req.session.permsRolesFrom = prevRoles
         } else {
           delete req.session.permsChanged
           delete req.session.permsChangedKeys
+          delete req.session.permsRolesFrom
         }
         const { id } = user
         if (!(await state.db.models.Session.isValidSession(id))) {

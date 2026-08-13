@@ -90,16 +90,24 @@ class ProxyAuthClient extends AuthClient {
 
   /**
    * A trial only exists to let users without access try the map out. Anyone
-   * who already has access through their roles is left untouched by it -
+   * whose roles already earn them something is left untouched by it -
    * otherwise their perms would flip every time a trial window opens or
    * closes, forcing a pointless reload.
+   *
+   * Access can not be measured by the `map` perm alone: deployments commonly
+   * leave it open to everyone, which would make every user look privileged.
+   * What marks a user as privileged is holding a perm that a user with no
+   * roles at all would not get.
    *
    * @param {string[]} roles Combined role names + role IDs
    * @returns {boolean}
    */
   trialApplies(roles) {
     if (!this.trialManager.active()) return false
-    return !this.computePerms(roles, false).map
+    if (!roles.length) return true
+    const owned = this.computePerms(roles, false)
+    const anonymous = this.computePerms([], false)
+    return !Object.keys(owned).some((perm) => owned[perm] && !anonymous[perm])
   }
 
   /**
