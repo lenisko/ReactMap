@@ -98,7 +98,10 @@ function apolloMiddleware(server) {
       if (perms && Object.keys(perms).length) {
         const currentHash = permsHash(perms)
         const currentRoles = req.session.proxyRoles || ''
-        const previousRoles = req.session.permsRoles || ''
+        // `permsRolesFrom` is set by the proxy middleware when a re-login
+        // replaced the roles - `permsRoles` already holds the new ones by then.
+        const previousRoles =
+          req.session.permsRolesFrom ?? req.session.permsRoles ?? ''
         // A baseline from an older hash version is not comparable - adopt it
         // silently rather than reporting a change that never happened.
         const hashChanged =
@@ -110,6 +113,7 @@ function apolloMiddleware(server) {
         if (hashChanged || req.session.permsChanged) {
           delete req.session.permsChanged
           delete req.session.permsChangedKeys
+          delete req.session.permsRolesFrom
           req.session.save()
           throw new GraphQLError('perms_changed', {
             extensions: {
