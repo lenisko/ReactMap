@@ -55,7 +55,9 @@ function proxyAuth(req, res, next) {
         client.aliasMap,
         client.roleSeparator,
       )
-      const trialActive = client.trialManager.active()
+      const trialActive = client.trialApplies
+        ? client.trialApplies(allRoles)
+        : client.trialManager.active()
       Object.assign(req.user.perms, client.getPerms(allRoles), {
         areaRestrictions: areaPerms(allRoles),
         webhooks: webhookPerms(allRoles, client.provider, trialActive),
